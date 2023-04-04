@@ -1,0 +1,36 @@
+include 'ketnoi.php';
+       if(isset($_POST['btn_img'])){
+           $tk = $_POST["name"];
+           $mk = $_POST["matkhau"];
+           $ghi = $_POST["ghichu"];
+           if(isset($_FILES['img'])){
+               $file=$_FILES['img'];
+               $filename= $file['name'];
+               move_uploaded_file($file['tmp_name'],$filename);
+               if (empty($filename)) {
+                   echo "Không để trống file ảnh";
+               } else {
+                   $ketnoi = mysqli_connect("localhost", "root", "", "qlisinhvien") or die("connect fail!");
+                   $check_matkhau = "SELECT * FROM sinhvien WHERE matkhau='$mk'";
+                   $ketqua = mysqli_query($ketnoi, $check_matkhau);
+                   $dem = mysqli_num_rows($ketqua);
+                   if ($dem > 0) {
+                       echo "Mật khẩu đã tồn tại";
+                   } else {
+                       $target_path = "" . basename($filename);
+                       $sql = "INSERT INTO sinhvien (taikhoan, matkhau, ghichu, anh) VALUES ('$tk', '$mk','$ghi','$target_path')";
+                       if(mysqli_query($ketnoi, $sql)) {
+                           if(move_uploaded_file($file["tmp_name"],$target_path)) {
+                               echo "Thêm mới thành công !";
+                               header('Location: them.php'); // redirect to show.php
+                               exit(); // dừng thực thi script hiện tại
+                           } else {
+                               echo "Thêm mới thất bại";
+                           }
+                       } else {
+                           echo "Thêm mới thất bại";
+                       }
+                   }
+               }
+           }
+       } 
